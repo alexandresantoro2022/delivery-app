@@ -1,13 +1,9 @@
-#!/usr/bin/env bash
-# Para o script se houver qualquer erro
-set -o errexit
+# Verifique se o git detecta a mudança (ele deve detectar)
+git status
 
-# Atualiza o pip e instala as dependências do requirements.txt
-pip install --upgrade pip
-pip install -r requirements.txt
+# Adicione e comite a alteração
+git add build.sh
+git commit -m "Fix: Converte terminações de linha do build.sh para LF"
 
-# Executa as migrações do banco de dados para garantir que ele está atualizado
-python -m flask db upgrade
-
-echo "Build finalizado com sucesso!"
-
+# Envie para o seu repositório
+git push
