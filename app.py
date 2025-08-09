@@ -1,3 +1,4 @@
+
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -17,13 +18,16 @@ from sqlalchemy import func
 # --- 1. CONFIGURAÇÃO ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
+
+# --- Bloco de Configuração do Banco de Dados CORRIGIDO ---
 database_url = os.environ.get('DATABASE_URL')
 if database_url:
     # Usa o banco de dados online (PostgreSQL no Render)
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url.replace("://", "ql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url.replace("postgres://", "postgresql://", 1) # <<< LINHA CORRIGIDA
 else:
     # Continua usando o banco de dados local (SQLite) para desenvolvimento
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///delivery.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static/uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -758,7 +762,7 @@ def checkout():
         if delivery_type == 'delivery' and restaurant.deliveryFee:
             message_parts.append(f"*Taxa de Entrega:* R$ {restaurant.deliveryFee:.2f}")
         else:
-             message_parts.append("*Taxa de Entrega:* R$ 0.00 (Retirada)")
+              message_parts.append("*Taxa de Entrega:* R$ 0.00 (Retirada)")
         message_parts.extend([f"*Total:* R$ {final_total:.2f}", "", f"*--- Pagamento e Entrega ---*", f"*Forma de Pagamento:* {form_data.get('payment_method')}"])
         if form_data.get('payment_method') == 'Dinheiro' and form_data.get('change_for'):
             message_parts.append(f"*Troco para:* R$ {form_data.get('change_for')}")
