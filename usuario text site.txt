@@ -1,0 +1,14 @@
+login clinte
+
+user : cliente@gmail.com
+senha: 1234
+
+restaurante
+
+restaurante@gmail.com
+senha: 1234
+
+adiministrador super
+
+admin@gmail.com
+senha:1234
