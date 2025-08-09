@@ -1,0 +1,58 @@
+{% extends "admin/sb_admin_layout.html" %}
+
+{% block title %}Gerenciar Restaurantes{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">Gerenciar Restaurantes</h1>
+<p class="mb-4">Visualize e gerencie todos os restaurantes parceiros da plataforma.</p>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Restaurantes</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Logo</th>
+                        <th>Nome</th>
+                        <th>Dono</th>
+                        <th>Aprovado</th>
+                        <th>Destaque</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for restaurant in restaurants %}
+                    <tr>
+                        <td>{{ restaurant.id }}</td>
+                        <td>
+                            {% if restaurant.logo_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ restaurant.logo_filename) }}" width="50" class="img-thumbnail">
+                            {% endif %}
+                        </td>
+                        <td>{{ restaurant.name }}</td>
+                        <td>{{ restaurant.owner.name if restaurant.owner else 'N/A' }}</td>
+                        <td>
+                            {% if restaurant.is_approved %}<span class="badge bg-success">Sim</span>{% else %}<span class="badge bg-danger">Não</span>{% endif %}
+                        </td>
+                        <td>
+                             {% if restaurant.is_featured %}<span class="badge bg-warning text-dark">Sim</span>{% else %}<span class="badge bg-secondary">Não</span>{% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('menu', restaurant_id=restaurant.id) }}" target="_blank" class="btn btn-info btn-sm">Ver</a>
+                            <a href="{{ url_for('admin_edit_restaurant', restaurant_id=restaurant.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                            <form action="{{ url_for('admin_delete_restaurant', restaurant_id=restaurant.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja apagar este restaurante? Todos os seus dados, incluindo cardápio e pedidos, serão perdidos.');">
+                                <button type="submit" class="btn btn-danger btn-sm">Apagar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

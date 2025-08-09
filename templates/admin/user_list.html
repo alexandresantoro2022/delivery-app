@@ -1,0 +1,47 @@
+{% extends "admin/sb_admin_layout.html" %}
+{% block title %}Gerenciar Usuários{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="h3 mb-2 text-gray-800">Gerenciar Usuários</h1>
+    <a href="{{ url_for('admin_create_user') }}" class="btn btn-primary mb-2">Criar Novo Usuário</a>
+</div>
+<p class="mb-4">Visualize, edite e apague todos os usuários cadastrados na plataforma.</p>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Usuários</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Nome</th><th>Email</th><th>Função (Role)</th><th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}<span class="badge bg-danger">Admin</span>
+                            {% elif user.role == 'owner' %}<span class="badge bg-success">Parceiro</span>
+                            {% else %}<span class="badge bg-secondary">Cliente</span>{% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja apagar este usuário?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Apagar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

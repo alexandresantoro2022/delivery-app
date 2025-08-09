@@ -1,0 +1,24 @@
+{# Card para o carrossel de destaques, com banner #}
+<a href="{{ url_for('menu', restaurant_id=r.id) }}" class="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+    {% if r.banner_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + r.banner_filename) }}" alt="{{ r.name }}" class="w-full h-32 object-cover">
+    {% else %}
+        <div class="w-full h-32 bg-gray-200 flex items-center justify-center"><span class="text-gray-400">{{ r.name }}</span></div>
+    {% endif %}
+    <div class="p-4 flex items-center">
+        {% if r.logo_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + r.logo_filename) }}" class="h-12 w-12 rounded-full object-cover border-2 border-white shadow-lg mr-3">
+        {% endif %}
+        <div>
+            <h3 class="font-semibold text-gray-800 truncate">{{ r.name }}</h3>
+            <p class="text-xs text-gray-500">
+                {% for tag in r.tags %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+            </p>
+            {% if is_restaurant_open(r) %}
+                <p class="text-xs font-bold text-green-600">Aberto</p>
+            {% else %}
+                <p class="text-xs font-bold text-red-600">Fechado</p>
+            {% endif %}
+        </div>
+    </div>
+</a>

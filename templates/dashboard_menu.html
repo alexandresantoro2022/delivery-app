@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Gerenciar Cardápio</h1>
+        <p class="text-gray-600">Adicione ou remova itens do cardápio de "{{ restaurant.name }}"</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="text-sm text-gray-600 hover:underline">&larr; Voltar para o Dashboard</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Adicionar Novo Item</h2>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Nome do Item</label>
+                        <input type="text" id="name" name="name" required class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-700">Preço (ex: 15.99)</label>
+                        <input type="number" step="0.01" id="price" name="price" required class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Descrição</label>
+                        <textarea id="description" name="description" rows="3" class="w-full mt-1 p-2 border border-gray-300 rounded-md"></textarea>
+                    </div>
+                    <div>
+                        <label for="image" class="block text-sm font-medium text-gray-700">Foto do Produto</label>
+                        <input type="file" id="image" name="image" class="w-full text-sm mt-1">
+                    </div>
+                    <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600">
+                        Adicionar ao Cardápio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="lg:col-span-2">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Itens Atuais</h2>
+            <div class="space-y-4">
+                {% for item in restaurant.menu_items %}
+                <div class="flex items-center border-b pb-3">
+                    {% if item.image_filename %}
+                        <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" class="h-16 w-16 rounded-md object-cover mr-4">
+                    {% else %}
+                        <div class="h-16 w-16 rounded-md bg-gray-200 mr-4"></div>
+                    {% endif %}
+                    <div class="flex-grow">
+                        <p class="font-semibold">{{ item.name }}</p>
+                        <p class="text-sm text-gray-600">{{ item.description }}</p>
+                    </div>
+                    <div class="flex items-center space-x-4 ml-4">
+                        <span class="font-bold text-gray-800">R$ {{ "%.2f"|format(item.price) }}</span>
+                        <a href="{{ url_for('edit_menu_item', item_id=item.id) }}" class="text-blue-500 hover:text-blue-700 font-semibold">Editar</a>
+                        <form method="POST" action="{{ url_for('delete_menu_item', item_id=item.id) }}" onsubmit="return confirm('Tem certeza?');">
+                            <button type="submit" class="text-red-500 hover:text-red-700 font-semibold">Remover</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-gray-500">Seu cardápio ainda está vazio.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

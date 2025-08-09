@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Delivre - Peça o Melhor Delivery{% endblock %}
+
+{% block head %}
+{# ========= CSS CUSTOMIZADO PARA O NOVO LAYOUT RESPONSIVO ========= #}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .hero-banner {
+        position: relative; padding: 4rem 1rem;
+        background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop');
+        background-size: cover; background-position: center; color: white;
+    }
+    .hero-banner::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    .hero-banner .container { position: relative; z-index: 2; }
+    
+    .section-title { font-weight: 600; font-size: 1.25rem; margin-bottom: 1rem; }
+
+    .restaurant-card {
+        border: 1px solid #eee; border-radius: 15px; overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background-color: #fff;
+    }
+    .restaurant-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+    
+    .restaurant-card .card-img-top {
+        height: 150px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .restaurant-card .card-body { padding: 1rem; }
+    .restaurant-card .card-title { font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .restaurant-card .card-text { font-size: 0.9rem; color: #6c757d; }
+
+    .category-item img, .category-item div:first-child {
+        width: 65px; height: 65px; object-fit: cover; border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease;
+    }
+    .category-item:hover img { transform: scale(1.1); }
+
+    .tns-controls button { display: none; }
+
+    @media (min-width: 768px) {
+        .hero-banner { padding: 6rem 1rem; }
+        .section-title { font-size: 1.5rem; }
+        .tns-controls button { display: block; background: white; border: 1px solid #ddd; border-radius: 50%; width: 40px; height: 40px; z-index: 10; opacity: 0.8; }
+        .tns-controls button:hover { opacity: 1; background: #eee; }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="hero-banner text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Onde a fome te leva hoje?</h1>
+        <p class="lead d-none d-md-block">Descubra os melhores restaurantes e lojas perto de você.</p>
+        <div class="col-md-7 mx-auto mt-4">
+            <div class="input-group input-group-lg shadow-sm">
+                <input type="text" id="search-input" class="form-control" placeholder="Buscar por pratos ou lojas" aria-label="Buscar">
+                <span class="input-group-text bg-white border-0">🔍</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+
+    <div id="search-results-container" style="display: none; background-color: white; border-radius: 15px; padding: 2rem;" class="shadow-sm"></div>
+
+    <div id="default-content">
+        <section id="categories" class="mb-4 position-relative">
+            <h4 class="section-title">Navegue por Categorias</h4>
+            <div id="category-carousel">
+                {% for category in all_categories %}
+                    <div class="p-1">
+                        <a href="{{ url_for('home', category=category.name) }}" class="text-decoration-none text-dark d-flex flex-column align-items-center category-item">
+                            {% if category.icon_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ category.icon_filename) }}" alt="{{ category.name }}" class="mb-2">
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center mb-2 bg-light"><span>?</span></div>
+                            {% endif %}
+                            <div style="font-size: 0.8rem; font-weight: 500;">{{ category.name }}</div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if featured_restaurants %}
+        <section id="featured-restaurants" class="mb-4">
+            <h4 class="section-title">Destaques</h4>
+            <div class="row g-3">
+                {% for restaurant in featured_restaurants %}
+                    <div class="col-12">
+                        <a href="{{ url_for('menu', restaurant_id=restaurant.id) }}" class="text-decoration-none text-dark">
+                            <div class="card restaurant-card">
+                                <div class="row g-0">
+                                    <div class="col-4 col-md-3">
+                                        <img src="{{ url_for('static', filename='uploads/' ~ restaurant.banner_filename if restaurant.banner_filename else 'images/default_logo.png') }}" class="img-fluid" style="height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="col-8 col-md-9">
+                                        <div class="card-body p-3">
+                                            <h5 class="card-title mb-1">{{ restaurant.name }}</h5>
+                                            <p class="card-text mb-1">⭐ {{ restaurant.average_rating }} • {% for tag in restaurant.tags %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+                                            <p class="card-text"><small class="text-muted">Entrega R$ {{ "%.2f"|format(restaurant.deliveryFee|float) }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        <section id="more-restaurants">
+            <h4 class="section-title">Mais Lojas</h4>
+            <div class="row g-3">
+                 {% for restaurant in restaurants %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{{ url_for('menu', restaurant_id=restaurant.id) }}" class="text-decoration-none text-dark">
+                            <div class="card restaurant-card h-100">
+                                <img src="{{ url_for('static', filename='uploads/' ~ restaurant.logo_filename if restaurant.logo_filename else 'images/default_logo.png') }}" class="card-img-top">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">{{ restaurant.name }}</h6>
+                                    <p class="card-text">⭐ {{ restaurant.average_rating }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="col-12">Nenhum restaurante encontrado.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div> 
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  if (document.getElementById('category-carousel')) {
+    var slider = tns({
+      container: '#category-carousel',
+      items: 4,
+      slideBy: 'page',
+      autoplay: false,
+      controls: true,
+      nav: false,
+      gutter: 10,
+      mouseDrag: true,
+      responsive: {
+        576: { items: 5 },
+        768: { items: 6 },
+        992: { items: 8 }
+      }
+    });
+  }
+
+  const searchInput = document.getElementById('search-input');
+  const resultsContainer = document.getElementById('search-results-container');
+  const defaultContent = document.getElementById('default-content');
+  searchInput.addEventListener('keyup', function() {
+      const query = searchInput.value;
+      if (query.length > 1) {
+          fetch(`/api/search?q=${query}`)
+              .then(response => response.json())
+              .then(data => {
+                  defaultContent.style.display = 'none';
+                  resultsContainer.style.display = 'block';
+                  
+                  let html = `<h4 class="section-title">Resultados para: <span class="text-primary">"${query}"</span></h4>`;
+                  
+                  if (data.restaurants && data.restaurants.length > 0) {
+                      html += '<h5>Lojas Encontradas</h5><hr><div class="row g-3 mb-4">';
+                      data.restaurants.forEach(r => {
+                          html += `
+                          <div class="col-6 col-md-4 col-lg-3">
+                              <a href="/menu/${r.id}" class="text-decoration-none text-dark">
+                                  <div class="card restaurant-card h-100">
+                                      <img src="${r.logo}" class="card-img-top">
+                                      <div class="card-body p-2">
+                                          <h6 class="card-title mb-1">${r.name}</h6>
+                                          <p class="card-text">⭐ ${r.average_rating}</p>
+                                      </div>
+                                  </div>
+                              </a>
+                          </div>`;
+                      });
+                      html += '</div>';
+                  }
+
+                  if (data.items && data.items.length > 0) {
+                      html += '<h5 class="mt-4">Itens Encontrados</h5><hr><div class="list-group">';
+                      data.items.forEach(i => {
+                          html += `
+                          <a href="/menu/${i.restaurant_id}" class="list-group-item list-group-item-action">
+                              <div class="d-flex w-100 justify-content-between">
+                                  <h6 class="mb-1">${i.name}</h6>
+                                  <small>R$ ${i.price}</small>
+                              </div>
+                              <small class="text-muted">Em: ${i.restaurant_name}</small>
+                          </a>`;
+                      });
+                      html += '</div>';
+                  }
+                  
+                  if (data.restaurants.length === 0 && data.items.length === 0) {
+                      html += '<p>Nenhum resultado encontrado para sua busca.</p>';
+                  }
+                  resultsContainer.innerHTML = html;
+              });
+      } else {
+          defaultContent.style.display = 'block';
+          resultsContainer.style.display = 'none';
+          resultsContainer.innerHTML = '';
+      }
+  });
+</script>
+{% endblock %}

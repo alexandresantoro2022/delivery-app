@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mt-10">
+    <h1 class="text-2xl font-bold text-center mb-6">Login do Cliente</h1>
+    <p class="text-center text-gray-600 mb-4">Faça login para continuar sua compra.</p>
+    <form method="POST">
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium">E-mail</label>
+                <input type="email" name="email" required class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Senha</label>
+                <input type="password" name="password" required class="w-full p-2 border rounded">
+            </div>
+            <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600">Entrar</button>
+        </div>
+    </form>
+    <p class="text-center text-sm mt-4">
+        Não tem uma conta? <a href="{{ url_for('customer_register') }}" class="text-orange-600 hover:underline">Cadastre-se</a>
+    </p>
+</div>
+{% endblock %}

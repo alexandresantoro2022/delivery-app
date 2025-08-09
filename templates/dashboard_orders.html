@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Pedidos de {{ restaurant_name }}</h1>
+        <p class="text-gray-600">Gerencie os pedidos recebidos.</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="text-sm text-gray-600 hover:underline">&larr; Voltar para o Dashboard</a>
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="space-y-8">
+        {% for order in orders %}
+        <div class="border-b pb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Pedido #{{ order.id }}</h3>
+                    <p class="text-sm text-gray-500">Cliente: {{ order.customer.name }}</p>
+                    <p class="text-sm text-gray-500">Data: {{ order.timestamp.strftime('%d/%m/%Y às %H:%M') }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-2xl text-orange-500">R$ {{ "%.2f"|format(order.total_price) }}</p>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">{{ order.status }}</span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h4 class="font-semibold text-gray-700">Itens:</h4>
+                <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
+                    {% for item in order.items %}
+                    <li>{{ item.quantity }}x {{ item.product_name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="mt-4">
+                <form action="{{ url_for('update_order_status', order_id=order.id) }}" method="POST" class="flex items-center space-x-2">
+                    <label for="status-{{order.id}}" class="text-sm font-medium">Mudar status para:</label>
+                    <select name="status" id="status-{{order.id}}" class="p-2 border border-gray-300 rounded-md">
+                        <option value="Em preparação" {% if order.status == 'Em preparação' %}selected{% endif %}>Em preparação</option>
+                        <option value="Saiu para entrega" {% if order.status == 'Saiu para entrega' %}selected{% endif %}>Saiu para entrega</option>
+                        <option value="Entregue" {% if order.status == 'Entregue' %}selected{% endif %}>Entregue</option>
+                        <option value="Cancelado" {% if order.status == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                    <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-600">
+                        Atualizar
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 py-8">Nenhum pedido recebido ainda.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

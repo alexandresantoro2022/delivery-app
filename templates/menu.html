@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ restaurant.name }}{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid p-0 mb-4">
+    {% if restaurant.banner_filename %}
+        <div style="max-height: 40vh; overflow: hidden;">
+            <img src="{{ url_for('static', filename='uploads/' + restaurant.banner_filename) }}" 
+                 alt="Banner de {{ restaurant.name }}" 
+                 style="width: 100%; object-fit: cover;">
+        </div>
+    {% else %}
+        <div style="height: 150px; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center">
+            <h2 class="text-muted">Bem-vindo a {{ restaurant.name }}</h2>
+        </div>
+    {% endif %}
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            {% if restaurant.logo_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' + restaurant.logo_filename) }}" alt="Logo de {{ restaurant.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;" class="me-3">
+                            {% endif %}
+                            <h1 class="h3 mb-0">{{ restaurant.name }}</h1>
+                        </div>
+                        <div class="ms-3">
+                             {% if current_user.is_authenticated and current_user.role == 'customer' %}
+                                {% if restaurant.id in favorited_ids %}
+                                    <form action="{{ url_for('remove_favorite', restaurant_id=restaurant.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-link text-danger p-1" title="Remover dos Favoritos">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form action="{{ url_for('add_favorite', restaurant_id=restaurant.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-link text-secondary p-1" title="Adicionar aos Favoritos">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <p>⭐ {{ restaurant.average_rating }} ({{ restaurant.review_count }} avaliações)</p>
+                    <hr>
+                    
+                    <h5>Informações</h5>
+                    <p class="mb-1"><strong>Endereço:</strong> {{ restaurant.address }}</p>
+                    <p class="mb-1"><strong>Status:</strong> 
+                        {% if is_restaurant_open(restaurant) %}<span class="badge bg-success">Aberto agora</span>{% else %}<span class="badge bg-danger">Fechado agora</span>{% endif %}
+                    </p>
+                    <p class="mb-1"><strong>Taxa de Entrega:</strong> R$ {{ "%.2f"|format(restaurant.deliveryFee|float) }}</p>
+                    
+                    <h5 class="mt-3">Horário de Funcionamento</h5>
+                    <ul class="list-group list-group-flush">
+                        {% set days = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"] %}
+                        {% for i in range(7) %}
+                            {% set hours_today = namespace(found=false) %}
+                            {% for h in restaurant.operating_hours %}{% if h.day_of_week == i %}
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>{{ days[i] }}:</span>
+                                    {% if h.is_closed %}
+                                        <span class="text-muted">Fechado</span>
+                                    {% else %}
+                                        <strong>{{ h.open_time.strftime('%H:%M') }} - {{ h.close_time.strftime('%H:%M') }}</strong>
+                                    {% endif %}
+                                </li>
+                                {% set hours_today.found = true %}{% endif %}{% endfor %}
+                            {% if not hours_today.found %}
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>{{ days[i] }}:</span>
+                                    <span class="text-muted">Fechado</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <h4>Cardápio</h4>
+            <hr>
+            <div class="row">
+                {% for item in restaurant.menu_items %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            {% if item.image_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ item.name }}</h5>
+                                <p class="card-text text-muted">{{ item.description }}</p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold fs-5">R$ {{ "%.2f"|format(item.price|float) }}</span>
+                                    <form action="{{ url_for('add_to_cart', item_id=item.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-primary btn-sm">Adicionar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p>Este restaurante ainda não cadastrou itens no cardápio.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

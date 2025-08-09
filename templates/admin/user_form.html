@@ -1,0 +1,37 @@
+{% extends "admin/sb_admin_layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+<h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ user.name if user else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email if user else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="password" name="password" {% if not user %}required{% endif %}>
+                {% if user %}<small class="form-text text-muted">Deixe em branco para não alterar a senha.</small>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Função (Role)</label>
+                <select class="form-control" id="role" name="role">
+                    <option value="customer" {% if user and user.role == 'customer' %}selected{% endif %}>Cliente</option>
+                    <option value="owner" {% if user and user.role == 'owner' %}selected{% endif %}>Parceiro</option>
+                    <option value="admin" {% if user and user.role == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+            <hr>
+            <a href="{{ url_for('admin_user_list') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

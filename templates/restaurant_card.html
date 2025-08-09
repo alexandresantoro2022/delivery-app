@@ -1,0 +1,32 @@
+<a href="{{ url_for('menu', restaurant_id=r.id) }}" class="group flex flex-col items-center text-center p-2 rounded-lg hover:bg-gray-100 transition-all duration-200">
+
+    {% if r.logo_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + r.logo_filename) }}"
+             alt="Logo de {{ r.name }}"
+             class="h-24 w-24 rounded-full object-cover border-2 border-gray-200 shadow-sm group-hover:shadow-lg transition-shadow duration-300">
+    {% else %}
+        <div class="h-24 w-24 rounded-full bg-orange-100 flex items-center justify-center border-2 border-gray-200 shadow-sm group-hover:shadow-lg transition-shadow duration-300">
+            <span class="text-orange-500 font-bold text-4xl">{{ r.name[0] }}</span>
+        </div>
+    {% endif %}
+
+    <p class="mt-3 text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition-colors truncate w-28">
+        {{ r.name }}
+    </p>
+    
+    <p class="text-xs text-gray-500 truncate w-28">
+        {% for tag in r.tags %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+    </p>
+
+    {% if is_restaurant_open(r) %}
+        <p class="text-xs font-bold text-green-600 mt-1">Aberto</p>
+    {% else %}
+        <p class="text-xs font-bold text-red-600 mt-1">Fechado</p>
+    {% endif %}
+
+    {% if r.distance is defined and r.distance != 99999 %}
+        <p class="text-xs text-gray-500 mt-1">
+            Aprox. {{ "%.1f"|format(r.distance) }} km
+        </p>
+    {% endif %}
+</a>

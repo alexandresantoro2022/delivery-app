@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Seja um Parceiro Delivre{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 text-center text-lg-start">
+            <h1 class="display-4 fw-bold">Venda muito mais com a Delivre!</h1>
+            <p class="lead my-4">Aumente seu faturamento com a plataforma de delivery que mais cresce. Ideal para qualquer tamanho e segmento de negócio.</p>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://img.freepik.com/premium-vector/delivery-service-worker-enjoying-his-work_112255-1087.jpg" class="img-fluid rounded">
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="text-center mb-4">Escolha seu modelo de negócio</h2>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <h3 class="card-title">Restaurantes</h3>
+                    <p class="card-text">Perfeito para lanchonetes, pizzarias, hamburguerias e qualquer negócio de alimentação.</p>
+                    <a href="{{ url_for('owner_register') }}" class="btn btn-primary btn-lg mt-3">Cadastrar Restaurante</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <h3 class="card-title">Multicategorias</h3>
+                    <p class="card-text">Ideal para supermercados, farmácias, petshops, lojas de conveniência e muito mais.</p>
+                    <a href="{{ url_for('owner_register') }}" class="btn btn-success btn-lg mt-3">Cadastrar Loja</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

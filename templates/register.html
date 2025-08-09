@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mt-10">
+    <h1 class="text-2xl font-bold text-center mb-6">Cadastre seu Restaurante</h1>
+    <form method="POST">
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium">Nome do Restaurante</label>
+                <input type="text" name="restaurant_name" required class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Seu Nome de Usuário (para login)</label>
+                <input type="text" name="username" required class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Senha</label>
+                <input type="password" name="password" required class="w-full p-2 border rounded">
+            </div>
+             <div>
+                <label class="block text-sm font-medium">Nº de WhatsApp da Loja</label>
+                <input type="text" name="whatsapp" required class="w-full p-2 border rounded">
+            </div>
+            <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600">Cadastrar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

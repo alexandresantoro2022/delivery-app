@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-6">Seu Carrinho</h1>
+
+{% if cart %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="space-y-4">
+        {% for item in cart %}
+        <div class="flex justify-between items-center border-b pb-4">
+            <div>
+                <h3 class="font-semibold">{{ item.name }}</h3>
+                <p class="text-sm text-gray-600">Qtd: {{ item.quantity }}</p>
+            </div>
+            <div class="text-right">
+                <p class="font-semibold">R$ {{ "%.2f"|format(item.price * item.quantity) }}</p>
+                <a href="{{ url_for('remove_from_cart', item_id=item.id) }}" class="text-red-500 text-sm hover:underline">Remover</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-6 border-t pt-6 space-y-2">
+        <div class="flex justify-between">
+            <span class="text-gray-600">Subtotal</span>
+            <span>R$ {{ "%.2f"|format(total_price) }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">Taxa de Entrega</span>
+            <span>R$ {{ "%.2f"|format(delivery_fee) }}</span>
+        </div>
+        <div class="flex justify-between font-bold text-xl">
+            <span>Total</span>
+            <span>R$ {{ "%.2f"|format(grand_total) }}</span>
+        </div>
+    </div>
+    
+   <form action="{{ url_for('checkout') }}" method="post" class="mt-6">
+    <button type="submit" class="w-full ..."> ... </button>
+</form>
+
+<div class="mt-6">
+    <a href="{{ url_for('checkout') }}" class="block text-center w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+        Ir para Checkout
+    </a>
+</div>
+{% else %}
+<div class="text-center py-12">
+    <p class="text-gray-500">Seu carrinho está vazio.</p>
+    <a href="{{ url_for('all_restaurants') }}" class="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600">Ver Restaurantes</a>
+</div>
+{% endif %}
+{% endblock %}

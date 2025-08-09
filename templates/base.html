@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/tiny-slider.css">
+    
+    <style>
+        /* Esconde elementos específicos do desktop em telas pequenas */
+        @media (max-width: 991.98px) {
+            .desktop-nav { display: none !important; }
+        }
+        /* Esconde elementos específicos do celular em telas grandes */
+        @media (min-width: 992px) {
+            .mobile-header, .bottom-nav { display: none !important; }
+        }
+        /* Ajuste para o conteúdo não ficar atrás da barra inferior no celular */
+        body { padding-bottom: 70px; }
+        @media (min-width: 992px) {
+            body { padding-bottom: 0; }
+        }
+
+        /* Estilo da Barra de Navegação Inferior */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background-color: #ffffff; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-around; align-items: center; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #6c757d; font-size: 0.7rem; }
+        .bottom-nav-item.active { color: #F97316; }
+    </style>
+
+    {% block head %}{% endblock %}
+    <title>{% block title %}Delivre{% endblock %}</title>
+</head>
+<body>
+
+    {# ========= BARRA DE NAVEGAÇÃO SUPERIOR (APENAS PARA DESKTOP) ========= #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm desktop-nav">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">Delivre</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'customer' %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('favorites') }}">Favoritos</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_orders') }}">Meus Pedidos</a></li>
+                        {% elif current_user.role == 'owner' %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Meu Dashboard</a></li>
+                        {% endif %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Sair</a></li>
+                    {% else %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Entrar / Cadastrar
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><h6 class="dropdown-header">Clientes</h6></li>
+                                <li><a class="dropdown-item" href="{{ url_for('customer_login') }}">Login Cliente</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('customer_register') }}">Cadastro Cliente</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Parceiros</h6></li>
+                                <li><a class="dropdown-item" href="{{ url_for('owner_login') }}">Login Parceiro</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('partner_landing') }}">Seja um Parceiro</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                    {% if current_user.is_anonymous or current_user.role == 'customer' %}
+                    <li class="nav-item">
+                        <a class="nav-link position-relative fs-5" href="{{ url_for('checkout') }}">
+                            🛒
+                            {% if cart_count > 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">{{ cart_count }}</span>{% endif %}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    {# ========= CABEÇALHO (APENAS PARA CELULAR) ========= #}
+    <header class="p-3 bg-white shadow-sm sticky-top mobile-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">Delivre</a>
+            <button class="btn fs-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                ☰
+            </button>
+        </div>
+    </header>
+
+    {# ========= MENU LATERAL (SIDEBAR) PARA CELULAR ========= #}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="mobileMenuLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
+             {% if current_user.is_authenticated %}
+                {% if current_user.role == 'customer' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('favorites') }}">Favoritos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_orders') }}">Meus Pedidos</a></li>
+                {% elif current_user.role == 'owner' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Meu Dashboard</a></li>
+                {% endif %}
+                <hr>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Sair</a></li>
+            {% else %}
+                <h6 class="text-muted">Clientes</h6>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_login') }}">Login Cliente</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('customer_register') }}">Cadastro Cliente</a></li>
+                <hr>
+                <h6 class="text-muted">Parceiros</h6>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('owner_login') }}">Login Parceiro</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('partner_landing') }}">Seja um Parceiro</a></li>
+            {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <main>
+        <div class="container mt-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}{% endif %}
+            {% endwith %}
+        </div>
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    {# ========= BARRA DE NAVEGAÇÃO INFERIOR (APENAS PARA CELULAR) ========= #}
+    <div class="bottom-nav">
+        <a href="{{ url_for('home') }}" class="bottom-nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Início</span>
+        </a>
+        <a href="{{ url_for('customer_orders') }}" class="bottom-nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <span>Pedidos</span>
+        </a>
+        <a href="{{ url_for('checkout') }}" class="bottom-nav-item position-relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            {% if cart_count > 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">{{ cart_count }}</span>{% endif %}
+            <span>Carrinho</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

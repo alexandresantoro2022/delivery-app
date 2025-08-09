@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Configurações do Restaurante</h1>
+        <p class="text-gray-600">Atualize os dados de "{{ restaurant.name }}"</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="text-sm text-gray-600 hover:underline">&larr; Voltar para o Dashboard</a>
+</div>
+
+<div class="max-w-2xl bg-white p-8 rounded-lg shadow-md">
+    <form method="POST" enctype="multipart/form-data">
+        <div class="space-y-6">
+            
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Nome do Restaurante</label>
+                <input type="text" id="name" name="name" value="{{ restaurant.name or '' }}" required class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Descrição Curta (Ex: Lanches artesanais e porções)</label>
+                <input type="text" id="description" name="description" value="{{ restaurant.description or '' }}" class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+            
+            <div>
+                <label for="address" class="block text-sm font-medium text-gray-700">Endereço Físico Completo</label>
+                <input type="text" id="address" name="address" value="{{ restaurant.address or '' }}" class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+
+            <div>
+                <label for="whatsapp" class="block text-sm font-medium text-gray-700">Nº de WhatsApp da Loja</label>
+                <input type="text" id="whatsapp" name="whatsapp" value="{{ restaurant.whatsapp or '' }}" required class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+
+            <div>
+                <label for="deliveryFee" class="block text-sm font-medium text-gray-700">Taxa de Entrega (use ponto, ex: 5.50)</label>
+                <input type="number" step="0.01" id="deliveryFee" name="deliveryFee" value="{{ restaurant.deliveryFee or '' }}" required class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+
+            <div class="border-t pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="latitude" class="block text-sm font-medium text-gray-700">Latitude</label>
+                    <input type="text" id="latitude" name="latitude" value="{{ restaurant.latitude or '' }}" class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm" placeholder="-23.6875">
+                </div>
+                <div>
+                    <label for="longitude" class="block text-sm font-medium text-gray-700">Longitude</label>
+                    <input type="text" id="longitude" name="longitude" value="{{ restaurant.longitude or '' }}" class="w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm" placeholder="-46.5492">
+                </div>
+                <p class="text-xs text-gray-500 md:col-span-2">Dica: Encontre suas coordenadas no Google Maps clicando com o botão direito no local do seu restaurante.</p>
+            </div>
+
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium">Horário de Funcionamento</h3>
+                {% set days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] %}
+                {% for i in range(7) %}
+                {% set day_hours = restaurant.operating_hours|selectattr('day_of_week', 'equalto', i)|first %}
+                <div class="grid grid-cols-3 gap-2 items-center mt-2 p-2 rounded-md {% if i % 2 == 1 %}bg-gray-50{% endif %}">
+                    <label class="col-span-1 text-sm font-medium text-gray-700">{{ days[i] }}</label>
+                    <div class="col-span-2 flex items-center space-x-2">
+                        <input type="time" name="open_time_{{i}}" value="{{ day_hours.open_time.strftime('%H:%M') if day_hours and day_hours.open_time and not day_hours.is_closed else '' }}" class="p-1 border rounded-md text-sm w-full">
+                        <span class="text-gray-500">às</span>
+                        <input type="time" name="close_time_{{i}}" value="{{ day_hours.close_time.strftime('%H:%M') if day_hours and day_hours.close_time and not day_hours.is_closed else '' }}" class="p-1 border rounded-md text-sm w-full">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="is_closed_{{i}}" class="h-4 w-4 rounded" {% if day_hours and day_hours.is_closed %}checked{% endif %}>
+                            <label class="text-xs ml-1">Fechado</label>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium">Tipos de Cozinha (Tags)</h3>
+                <p class="text-sm text-gray-500 mb-2">Selecione as categorias que descrevem seu restaurante. Elas são gerenciadas pelo Super Admin.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                    {% for tag in all_tags %}
+                    <label class="flex items-center space-x-2 p-2 border rounded-md hover:bg-gray-50">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}" class="h-4 w-4 rounded" {% if tag in restaurant.tags %}checked{% endif %}>
+                        <span>{{ tag.name }}</span>
+                    </label>
+                    {% else %}
+                    <p class="text-sm text-gray-500 col-span-full">Nenhuma tag cadastrada pelo administrador do site.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium text-gray-900">Aparência da sua Página</h3>
+                <p class="text-sm text-gray-500 mb-4">Escolha como sua loja será apresentada aos clientes.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="border rounded-lg p-4 cursor-pointer has-[:checked]:border-orange-500 has-[:checked]:ring-2 has-[:checked]:ring-orange-200">
+                        <input type="radio" name="theme" value="moderno" class="sr-only" {% if restaurant.theme == 'moderno' or not restaurant.theme %}checked{% endif %}>
+                        <div class="text-center">
+                            <div class="mx-auto h-24 w-24 rounded-full bg-gray-200 flex items-center justify-center shadow-inner"><svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg></div>
+                            <p class="font-semibold mt-2">Grid Moderno</p><p class="text-xs text-gray-500">Ideal para destacar sua logo.</p>
+                        </div>
+                    </label>
+                    <label class="border rounded-lg p-4 cursor-pointer has-[:checked]:border-orange-500 has-[:checked]:ring-2 has-[:checked]:ring-orange-200">
+                        <input type="radio" name="theme" value="classico" class="sr-only" {% if restaurant.theme == 'classico' %}checked{% endif %}>
+                         <div class="text-center">
+                            <div class="mx-auto h-24 w-full bg-gray-200 flex items-end p-2 shadow-inner rounded"><div class="h-8 w-8 rounded-full bg-gray-300"></div></div>
+                            <p class="font-semibold mt-2">Banner Clássico</p><p class="text-xs text-gray-500">Ideal para destacar uma foto.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border-t pt-6">
+                <label for="logo" class="block text-sm font-medium text-gray-700">Logo do Restaurante</label>
+                {% if restaurant.logo_filename %}
+                    <img src="{{ url_for('static', filename='uploads/' + restaurant.logo_filename) }}" alt="Logo atual" class="h-16 w-16 rounded-full object-cover my-2">
+                {% endif %}
+                <input type="file" id="logo" name="logo" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                <p class="text-xs text-gray-500 mt-1">Envie uma nova imagem para substituir a atual.</p>
+            </div>
+
+            <div>
+                <label for="banner" class="block text-sm font-medium text-gray-700">Banner da Página do Cardápio</label>
+                {% if restaurant.banner_filename %}
+                    <img src="{{ url_for('static', filename='uploads/' + restaurant.banner_filename) }}" alt="Banner atual" class="w-full h-32 rounded-md object-cover my-2">
+                {% endif %}
+                <input type="file" id="banner" name="banner" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+            </div>
+
+            <div>
+                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+                    Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

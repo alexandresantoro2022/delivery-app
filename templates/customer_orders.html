@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-6">Meus Pedidos</h1>
+<div class="space-y-6">
+    
+    {% for order in orders %}
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4 border-b pb-4">
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800">Pedido #{{ order.id }}</h3>
+                <p class="text-sm text-gray-500">Realizado em: {{ order.timestamp.strftime('%d/%m/%Y às %H:%M') }}</p>
+            </div>
+            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">{{ order.status }}</span>
+        </div>
+        
+        <h4 class="text-md font-semibold text-gray-700 mb-2">Itens:</h4>
+        <ul class="space-y-1 mb-4">
+            {% for item in order.items %}
+            <li class="flex justify-between text-sm text-gray-700">
+                <span>{{ item.quantity }}x {{ item.product_name }}</span>
+                <span class="font-mono">R$ {{ "%.2f"|format(item.price * item.quantity) }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <div class="border-t pt-4 flex justify-between font-bold text-lg text-gray-800">
+            <span>Total do Pedido:</span>
+            <span class="font-mono">R$ {{ "%.2f"|format(order.total_price) }}</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-16 bg-white rounded-lg shadow-md">
+        <p class="text-gray-500">Você ainda não fez nenhum pedido.</p>
+        <a href="{{ url_for('home') }}" class="mt-4 inline-block bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600">
+            Começar a Pedir
+        </a>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}
+<div>
+    <h5>Avaliar {{ order.restaurant.name }}</h5>
+    <form action="{{ url_for('submit_review', restaurant_id=order.restaurant.id) }}" method="POST">
+        <div class="mb-2">
+            <label>Sua nota (1 a 5):</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating1_{{order.id}}" value="1" required>
+                <label class="form-check-label" for="rating1_{{order.id}}">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating2_{{order.id}}" value="2">
+                <label class="form-check-label" for="rating2_{{order.id}}">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating3_{{order.id}}" value="3">
+                <label class="form-check-label" for="rating3_{{order.id}}">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating4_{{order.id}}" value="4">
+                <label class="form-check-label" for="rating4_{{order.id}}">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="rating" id="rating5_{{order.id}}" value="5">
+                <label class="form-check-label" for="rating5_{{order.id}}">5</label>
+            </div>
+        </div>
+        <div class="mb-2">
+            <label for="comment_{{order.id}}" class="form-label">Comentário (opcional):</label>
+            <textarea class="form-control" name="comment" id="comment_{{order.id}}" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Enviar Avaliação</button>
+    </form>
+</div>
+<hr>
