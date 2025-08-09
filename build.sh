@@ -1,9 +1,10 @@
-# Verifique se o git detecta a mudança (ele deve detectar)
-git status
+#!/usr/bin/env bash
+# exit on error
+set -o errexit
 
-# Adicione e comite a alteração
-git add build.sh
-git commit -m "Fix: Converte terminações de linha do build.sh para LF"
+pip install --upgrade pip
+pip install -r requirements.txt
 
-# Envie para o seu repositório
-git push
+python -m flask db upgrade
+
+echo "Build finalizado com sucesso!"
